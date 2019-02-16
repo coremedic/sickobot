@@ -28,10 +28,21 @@
 import discord
 import asyncio
 import aiohttp
+import time
 import json 
 import random
+import urllib
+import requests
+import base64
+import sys
+import subprocess 
+from art import *
 from discord import Game
 from discord.ext.commands import Bot
+
+def figlet(text):
+	 result = subprocess.run(['figlet', text], stdout=subprocess.PIPE)
+	 return result.stdout.decode('utf-8')
 
 BOT_PREFIX = ("&", "?")
 
@@ -56,21 +67,40 @@ async def eight_ball(context):
 		"Yes, Declan is fat",
     ]
     await client.say(random.choice(possible_responses) + ", " + context.message.author.mention)
-
-
-@client.command()
+    
+@client.command(description="@s someone 20 times",
+							brief="@s someone 20 times")
+async def at(person):
+	for x in range(0, 19):
+		pid = "<@" + person + ">"
+		await client.say(pid)
+		time.sleep(0.75)
+		
+# Mentions people 20 times, working on making the user set the number of mentions
+@client.command(brief="Square a number")
 async def square(number):
     squared_value = int(number) * int(number)
     await client.say(str(number) + " squared is " + str(squared_value))
+    
+# Links to github repo
+@client.command()
+async def sourcecode():
+	source_code = "https://github.com/coremedic/sickobot/tree/master"
+	await client.say("Ok, " + str(source_code) + " my repo is updated weekly")
+	
+# Not yet working 	
+@client.command(brief="NOT FUNCTIONAL")
+async def waifu():
+	await client.say("I am still working on this command. The goal is to have the bot be able to roll for waifu's")
 
-
+# Sets playing status
 @client.event
 async def on_ready():
     await client.change_presence(game=Game(name="with humans"))
     print("Logged in as " + client.user.name)
-
-
-@client.command()
+    
+# Prints current BTC price
+@client.command(brief="Prints current BTC to USD conversion")
 async def bitcoin():
     url = 'https://api.coindesk.com/v1/bpi/currentprice/BTC.json'
     async with aiohttp.ClientSession() as session:  # Async HTTP request
@@ -78,7 +108,28 @@ async def bitcoin():
         response = await raw_response.text()
         response = json.loads(response)
         await client.say("Bitcoin price is: $" + response['bpi']['USD']['rate'])
+   
+# ASCII art maker. Work in progress    
+#@client.command() 
+#async def ascii(text):
+#	url = 'https://artii.herokuapp.com/make?text=yeet'
+#	async with aiohttp.ClientSession() as session:
+#		raw_response = await session.get(url) # Raw http response
+#		response = await raw_response.text() # Passing raw_response to text
+#		await client.say(response)
 
+# ASCII art maker version 2 NO SPACES
+@client.command(brief="ASCII art maker NO SPACES")
+async def ascii(input):
+	await client.say('```' + figlet(input) + '```')
+	
+#PRAISE THE SUN
+@client.command(brief="PRAISE THE SUN")
+async def pts():
+	channel = client.get_channel("409576030957731842")
+	await client.send_file(channel, 'pts.jpg')	
+	
+	
 
 async def list_servers():
     await client.wait_until_ready()
