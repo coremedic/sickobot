@@ -1,1 +1,2 @@
 # sickobot
+Discord Bot
